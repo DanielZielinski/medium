@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: trace-app
+  zipkin:
+    enabled: true
+    rabbitmq:
+      addresses: localhost:5672
+      username: guest
+      password: guest
+    sender:
+      type: rabbit
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/local_db
+    username: dadmin
+    password: dadmin
+    initialization-mode: always
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: none
+  jpa:
+    show-sql: true
+  data:
+    mongodb:
+      uri: mongodb://root:pass@127.0.0.1:27017/trace?authSource=admin
+      database: trace
+      auto-index-creation: true
+  cloud:
+    stream:
+      bindings:
+        trace-producer:
+          destination: trace-data
+          binder: defaultRabbit
+        trace-consumer:
+          destination: trace-data
+          default-binder: defaultRabbit
+          group: traces
+          contentType: application/json
+      binders:
+        defaultRabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest

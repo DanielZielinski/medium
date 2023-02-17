@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  mongo:
+    image: mongo
+    restart: "no"
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+
+  mongo-express:
+    image: mongo-express
+    restart: "no"
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: pass
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: "no"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  postgres-db:
+    image: postgres:9.6
+    restart: "no"
+    volumes:
+      - ~/db:/var/lib/postgresql/data
+      - ./init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dadmin
+      POSTGRES_PASSWORD: dadmin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+    environment:
+      RABBIT_CONCURRENCY: 1
+      RABBIT_QUEUE: zipkin
+      RABBIT_ADDRESSES: host.docker.internal:5672
+      RABBIT_PASSWORD: guest
+      RABBIT_USER: guest
+      RABBIT_CONNECTION_TIMEOUT: 50000
