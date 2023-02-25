@@ -9,6 +9,8 @@ spring:
       password: guest
     sender:
       type: rabbit
+    notAllowedSpanNames:
+      - "show"
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/local_db
